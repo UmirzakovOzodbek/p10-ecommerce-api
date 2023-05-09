@@ -1,12 +1,13 @@
 from django.urls import path
 
-from products.views import get_products_list, get_product, category, category_detail
+from products.views import (
+    ProductListCreateView, ProductDetailView, ProductUpdateView, ProductDeleteView, ProductRetrieveView
+)
 
 urlpatterns = [
-    # @api_view
-    path("categories/", category, name="category-list-create"),
-    path("categories/<int:pk>/", category_detail, name="category-detail"),
-    path("", get_products_list, name="products-list"),
-    # path("<int:pk>/", get_product, name="products-detail")
-    path("<slug:slug>/", get_product, name="products-detail"),
+    path("", ProductListCreateView.as_view(), name="products_list_create"),
+    # path("<int:pk>/", ProductRetrieveView.as_view(), name="product_read"),
+    # path("<int:pk>/edit/", ProductUpdateView.as_view(), name="product_edit"),
+    # path("<int:pk>/delete/", ProductDeleteView.as_view(), name="product_delete"),
+    path("<slug:slug>/", ProductDetailView.as_view(), name="product_detail")
 ]

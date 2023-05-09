@@ -1,30 +1,36 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
-from products.models import Product, Category
+from common.models import Category
+from products.models import Product
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("id", "title")
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    category = ProductCategorySerializer()
+
     class Meta:
         model = Product
-        fields = ["id", "title", "slug"]
+        fields = ["id", "title", "slug", "price", "category"]
+
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     data["category"] = ProductCategorySerializer(instance.category).data
+    #     return data
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
+class ProductCreateSerializer(serializers.ModelSerializer):
+    slug = serializers.SlugField(required=False)
 
     class Meta:
-        model = Category
-        fields = ("id", "title", "position", "parent")
-
-    def update(self, instance, validated_data):
-        parent = validated_data.get("parent")
-        if instance == parent:
-            raise ValidationError("Category parent id must be different")
-        return super().update(instance, validated_data)
+        model = Product
+        fields = ["id", "title", "slug", "price", "category"]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.parent:
-            data["parent"] = instance.parent.title
+        data["category"] = ProductCategorySerializer(instance.category).data
         return data
